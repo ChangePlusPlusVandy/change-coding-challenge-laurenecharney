@@ -12,27 +12,55 @@ consumer_secret = "O2bV9snmYRKgFMqHCk1j7P4hjQ4oRCFWXpuiO7losn7Nqu44Ar"
 access_token = "2552795065-RhJ1qLbFOwlsBo997Uo6nqJbxUA67JqjbT7qUwW"
 access_token_secret = "730FeB99zdW6t9f8vYkWuQglb3xtFwyb3gddl79xZIv3a"
 
-#Give waiting instruction
-print("\nPlease wait for the game to load.")
-print("\_(ツ)_/¯")
-print("")
 
 #create API authentication
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
-#get names of user's to play game with
-users = ["kanyewest", "elonmusk"]
+print("Two Twitter Handles must be used for this game. " +
+      "Please ensure the names you enter have tweeted themselves at least ones\n")
+
+#get names of user's to play game with & ensure they have enough tweets to play game with
+while True:
+    user1 = input("Please enter first twitter handle to play with @")
+    user1_account = api.get_user(user1)
+    user1_tweetcount = user1_account.statuses_count
+    if user1_tweetcount > 0:
+        break
+while True:
+    user2 = input("Please enter second twitter handle to play with @")
+    user2_account = api.get_user(user1)
+    user2_tweetcount = user2_account.statuses_count
+    if user2_tweetcount > 0:
+        break
+
+users = [user1, user2]
+
+#Give waiting instruction
+print("\nPlease wait for the game to load.")
+print("\_(ツ)_/¯")
+print("")
 
 #filter retweets and urls
 search = " -filter:retweets" + "-filter:links"
 
-#add 1600 Kayne tweets and 1600 Elon tweets into a list
+#determine number of tweets to search through
+tweetSize = 0
+if user1_tweetcount < 2000 and user2_tweetcount < 2000:
+    if user1_tweetcount < user2_tweetcount:
+        tweetSize = user1_tweetcount
+    else:
+        tweetSize = user2_tweetcount
+else:
+    tweetSize = 2000
+
+
+#add 1600 user1 tweets and 1600 user2 tweets into a list
 tweet_list = []
 tweet_count = 0
 for user_id in users:
-    for tweet in tw.Cursor(api.user_timeline, q=search, id=user_id).items(2000):
+    for tweet in tw.Cursor(api.user_timeline, q=search, id=user_id).items(tweetSize):
         if not tweet.retweeted and ('RT @' not in tweet.text) \
                 and "@" not in tweet.text\
                 and 'https:/' not in tweet.text \
@@ -42,8 +70,8 @@ for user_id in users:
 
 #BEGIN GAME!
 
-print("WELCOME TO ELONYE GUESSING GAME")
-print("Instrcutions:\nA tweet by either Kanye West or Elon Musk will be presented to you."
+print("WELCOME TO WHO WROTE THAT TWEET\n")
+print("Instructions:\nA tweet by either " + user1 + " or " + user2 + " will be presented to you."
       "\nTo get points, you must correctly guess who authored the Tweet.\n")
 user_input = input("Ready to play? Y/N\n")
 
@@ -60,7 +88,7 @@ while user_input == "Y":
     print("Tweet: \""+ random_tweet.text + "\"")
 
     #check if guess is correct
-    user_guess = input("\nIs the author kanyewest or elonmusk?\n")
+    user_guess = input("\nIs the author " + user1 + " or " + user2 + "?\n")
     if user_guess == tweet_author:
         number_correct+=1
         print("Great job! You guessed the author of the tweet correctly")
@@ -81,5 +109,5 @@ while user_input == "Y":
     if user_input == "N":
         break
 
-print("Thank you playing! Please play again soon:)")
+print("Thank you for playing! Please play again soon:)")
 

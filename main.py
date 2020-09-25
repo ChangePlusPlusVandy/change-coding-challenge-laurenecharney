@@ -52,7 +52,6 @@ users = [user1, user2]
 print("\nPlease wait for the game to load.")
 print("\_(ツ)_/¯")
 print("")
-print("Please be distracted by this relevant meme <3")
 
 #filter retweets and urls
 search = " -filter:retweets" + "-filter:links"

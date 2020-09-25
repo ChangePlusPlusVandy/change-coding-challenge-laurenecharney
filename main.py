@@ -5,6 +5,7 @@
 
 import tweepy as tw
 import random
+import os
 
 #information for API
 consumer_key = "WLu4GUQV6uxabONTzjCnGJm9e"
@@ -19,21 +20,31 @@ auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
 print("Two Twitter Handles must be used for this game. " +
-      "Please ensure the names you enter have tweeted themselves at least ones\n")
+      "Please ensure the names you enter are valid and have tweeted themselves at least ones\n")
 
 #get names of user's to play game with & ensure they have enough tweets to play game with
-while True:
-    user1 = input("Please enter first twitter handle to play with @")
-    user1_account = api.get_user(user1)
-    user1_tweetcount = user1_account.statuses_count
-    if user1_tweetcount > 0:
-        break
-while True:
-    user2 = input("Please enter second twitter handle to play with @")
-    user2_account = api.get_user(user1)
-    user2_tweetcount = user2_account.statuses_count
-    if user2_tweetcount > 0:
-        break
+user1 = input("Please enter first twitter handle to play with @")
+user1_account = None
+while user1_account is None:
+    try:
+        user1_account = api.get_user(user1)
+        user1_tweetcount = user1_account.statuses_count
+        if user1_tweetcount > 0:
+            break
+    except Exception:
+        user1 = input("Username does not exist, please enter first twitter handle again @")
+
+#get names of user's to play game with & ensure they have enough tweets to play game with
+user2 = input("Please enter second twitter handle to play with @")
+user2_account = None
+while user2_account is None:
+    try:
+        user2_account = api.get_user(user2)
+        user2_tweetcount = user2_account.statuses_count
+        if user2_tweetcount > 0:
+            break
+    except Exception:
+        user2 = input("Username does not exist, please enter second twitter handle again @")
 
 users = [user1, user2]
 
@@ -41,6 +52,7 @@ users = [user1, user2]
 print("\nPlease wait for the game to load.")
 print("\_(ツ)_/¯")
 print("")
+print("Please be distracted by this relevant meme <3")
 
 #filter retweets and urls
 search = " -filter:retweets" + "-filter:links"
@@ -80,10 +92,11 @@ games_played = 0
 number_correct = 0
 number_incorrect = 0
 
-while user_input == "Y":
+while True:
     #get random tweet
     random_value = random.randint(0, len(tweet_list)-1)
     random_tweet = tweet_list[random_value]
+    tweet_list.remove(random_tweet)
     tweet_author = random_tweet.user.screen_name
     print("Tweet: \""+ random_tweet.text + "\"")
 
@@ -107,7 +120,8 @@ while user_input == "Y":
     #check if user wants to continue playing
     user_input = input("\nPlay again? Y/N\n")
     if user_input == "N":
+        print("Thank you for playing! Please play again soon:)")
         break
-
-print("Thank you for playing! Please play again soon:)")
-
+    if len(tweet_list) < 1:
+        print("You have guesses all tweets! Please play again soon:)")
+        break
